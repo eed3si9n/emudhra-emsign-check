@@ -20,4 +20,15 @@ VULNERABLE (HTTP 200) https://ov-g3b-aaa-emudhra.we-have-a-problem.com/
 VULNERABLE (HTTP 200) https://ov-g3c-aaa-emudhra.we-have-a-problem.com/
 VULNERABLE (HTTP 200) https://ev-g3b-aaa-emudhra.we-have-a-problem.com/
 VULNERABLE (HTTP 200) https://ev-g3c-aaa-emudhra.we-have-a-problem.com/
+[error] java.lang.RuntimeException: compromised CAs are in use, or we encountered a network error
+[error]   at scala.sys.package$.error(package.scala:27)
+[error]   at CheckCompromisedCa$.test(CheckCompromisedCa.scala:36)
+[error]   at CheckCompromisedCa$.main(CheckCompromisedCa.scala:32)
+[error]   at main.main(CheckCompromisedCa.scala:22)
+[error]   at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+[error]   at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+[error]   at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+[error]   at java.lang.reflect.Method.invoke(Method.java:498)
+[error] stack trace is suppressed; run last Compile / run for the full output
+[error] (Compile / run) compromised CAs are in use, or we encountered a network error
 ```

@@ -26,11 +26,14 @@ object CheckCompromisedCa:
       Security.setProperty("ocsp.enable", "true")
       sys.props("com.sun.net.ssl.checkRevocation") = "true"
       sys.props("com.sun.security.enableCRLDP") = "true"
+    test
 
+  def test: Unit =
     println(s"Java ${sys.props("java.version")} (${sys.props("java.home")})")
-    testUrls.foreach(verifyTls)
+    if testUrls.map(verifyTls).contains(false) then
+      sys.error("compromised CAs are in use, or we encountered a network error")
 
-  def verifyTls(url: String): Unit =
+  def verifyTls(url: String): Boolean =
     val conn = URI.create(url).toURL.openConnection().asInstanceOf[HttpsURLConnection]
     conn.setConnectTimeout(10000)
     conn.setReadTimeout(15000)
@@ -38,6 +41,7 @@ object CheckCompromisedCa:
       val status = conn.getResponseCode
       // Handshake succeeded -> certificate chain was accepted
       println(s"${red("VULNERABLE")} (HTTP $status) $url")
+      false
     catch
       case e: IOException =>
         findSslException(e) match
@@ -45,10 +49,12 @@ object CheckCompromisedCa:
             // Handshake was rejected -> problem detected
             println(s"${green("OK")} $url")
             println(s"  ${ssl.getClass.getSimpleName}: ${ssl.getMessage}")
+            true
           case None =>
             // DNS, timeout, connection refused etc. -> says nothing about TLS
             println(s"${yellow("ERROR")} $url")
             println(s"  ${e.getClass.getSimpleName}: ${e.getMessage}")
+            false
     finally conn.disconnect()
 
   def red(s: String): String =
