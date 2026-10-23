@@ -105,14 +105,14 @@ jobs:
         cache: sbt
     - name: Setup sbt
       uses: sbt/setup-sbt@v1
-    - name: Distrust compromised certs manually
-      shell: bash
-      run: |
-        if [ "$RUNNER_OS" = "Windows" ]; then
-          bash bin/distrust-emudhra.sh "$JAVA_HOME"
-        else
-          sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
-        fi
+    # - name: Distrust compromised certs manually
+    #   shell: bash
+    #   run: |
+    #     if [ "$RUNNER_OS" = "Windows" ]; then
+    #       bash bin/distrust-emudhra.sh "$JAVA_HOME"
+    #     else
+    #       sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
+    #     fi
     - name: Test
       shell: bash
       run: sbt -v run
