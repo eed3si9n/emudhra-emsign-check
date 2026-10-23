@@ -47,3 +47,7 @@ This repo also contains a script to distrust the compromised certs manually:
         sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
       fi
 ```
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
