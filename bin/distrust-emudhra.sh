@@ -10,7 +10,6 @@
 # (see Sonatype, "The limits of fingerprint blocklists" [1]).
 #
 # [1]: https://www.sonatype.com/blog/the-limits-of-fingerprint-blocklists-a-reproducible-java-certificate-bypass
-#
 # Usage:
 #   distrust-emudhra.sh [--dry-run] [JAVA_HOME]
 #     JAVA_HOME defaults to $JAVA_HOME, then to the JDK that `java` resolves to.
@@ -55,7 +54,15 @@ if [ -z "$JH" ] && command -v java >/dev/null 2>&1; then
 fi
 [ -n "$JH" ] && [ -d "$JH" ] || { err "JAVA_HOME not found (pass it as an argument)"; exit 1; }
 
-command -v keytool >/dev/null 2>&1 || { err "keytool not on PATH"; exit 1; }
+# Pin keytool to this JDK rather than $PATH: under sudo, root's PATH often omits
+# a hostedtoolcache JDK, and we want the keytool that matches the store anyway.
+if [ -x "$JH/bin/keytool" ]; then
+  KEYTOOL="$JH/bin/keytool"
+elif command -v keytool >/dev/null 2>&1; then
+  KEYTOOL="keytool"
+else
+  err "keytool not found in $JH/bin or on PATH"; exit 1
+fi
 
 # --- locate cacerts (JDK 8 uses jre/lib; newer uses lib) ----------------------
 KS=""
@@ -68,13 +75,21 @@ done
 log "JAVA_HOME:   $JH"
 log "trust store: $KS"
 
+# A hostedtoolcache JDK often has a root-owned, read-only cacerts: reads work
+# but keytool -delete fails with "Permission denied". Catch it early with a
+# clear hint instead of a cryptic keytool error mid-run.
+if [ "$DRY_RUN" != "1" ] && [ ! -w "$KS" ]; then
+  err "trust store is not writable by $(id -un): re-run this step with sudo (e.g. 'sudo -E bash $0')"
+  exit 1
+fi
+
 # --- decide whether removing AAA is safe --------------------------------------
 # AAA = Sectigo "AAA Certificate Services", the cross-sign path for the eMudhra
 # intermediates. Modern Sectigo chains lead to USERTrust instead; only remove
 # AAA when USERTrust is present to carry those chains (or when FORCE_AAA=1).
 REMOVE_AAA=1
 if [ "$FORCE_AAA" != "1" ]; then
-  if ! keytool -list -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null | grep -qi usertrust; then
+  if ! "$KEYTOOL" -list -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null | grep -qi usertrust; then
     warn "USERTrust not in trust store; keeping AAA so Sectigo chains still validate (set FORCE_AAA=1 to override)"
     REMOVE_AAA=0
   fi
@@ -83,7 +98,7 @@ fi
 # --- collect aliases to delete, matched by Owner (names vary by vendor) -------
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
-keytool -list -v -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null \
+"$KEYTOOL" -list -v -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null \
   | awk -F': ' -v rmaaa="$REMOVE_AAA" '
       /^Alias name:/ { a = $2 }
       /^Owner:/ {
@@ -101,12 +116,12 @@ else
   cp "$KS" "$KS.bak.$(date +%Y%m%d%H%M%S)"
   while IFS= read -r alias; do
     [ -n "$alias" ] || continue
-    keytool -delete -alias "$alias" -keystore "$KS" -storepass "$STOREPASS"
+    "$KEYTOOL" -delete -alias "$alias" -keystore "$KS" -storepass "$STOREPASS"
     log "removed: $alias"
   done < "$TMP"
 fi
 
 # --- report remaining -----------------------------------------------------
 log "remaining emSign/AAA entries (none expected, unless AAA deliberately kept):"
-if keytool -list -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null \
+if "$KEYTOOL" -list -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null \
      | grep -iE 'emsign|aaa certificate|comodoaaa'; then :; else log "  (none)"; fi
