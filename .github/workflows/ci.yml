@@ -105,6 +105,9 @@ jobs:
         cache: sbt
     - name: Setup sbt
       uses: sbt/setup-sbt@v1
+    - name: Distrust compromised certs manually
+      shell: bash
+      run: bin/distrust-emudhra.sh
     - name: Test
       shell: bash
       run: sbt -v run
