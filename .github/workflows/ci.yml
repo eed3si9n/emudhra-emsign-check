@@ -10,8 +10,97 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            java: 8
+            distribution: zulu
+          - os: macos-latest
+            java: 8
+            distribution: zulu
+          - os: windows-latest
+            java: 8
+            distribution: zulu
+          - os: ubuntu-latest
             java: 11
             distribution: zulu
+          - os: macos-latest
+            java: 11
+            distribution: zulu
+          - os: windows-latest
+            java: 11
+            distribution: zulu
+          - os: ubuntu-latest
+            java: 17
+            distribution: zulu
+          - os: macos-latest
+            java: 17
+            distribution: zulu
+          - os: windows-latest
+            java: 17
+            distribution: zulu
+          - os: ubuntu-latest
+            java: 25
+            distribution: zulu
+          - os: macos-latest
+            java: 25
+            distribution: zulu
+          - os: windows-latest
+            java: 25
+            distribution: zulu
+
+          - os: ubuntu-latest
+            java: 8
+            distribution: temurin
+          - os: macos-latest
+            java: 8
+            distribution: temurin
+          - os: windows-latest
+            java: 8
+            distribution: temurin
+          - os: ubuntu-latest
+            java: 11
+            distribution: temurin
+          - os: macos-latest
+            java: 11
+            distribution: temurin
+          - os: windows-latest
+            java: 11
+            distribution: temurin
+          - os: ubuntu-latest
+            java: 17
+            distribution: temurin
+          - os: macos-latest
+            java: 17
+            distribution: temurin
+          - os: windows-latest
+            java: 17
+            distribution: temurin
+          - os: ubuntu-latest
+            java: 25
+            distribution: temurin
+          - os: macos-latest
+            java: 25
+            distribution: temurin
+          - os: windows-latest
+            java: 25
+            distribution: temurin
+
+          - os: ubuntu-latest
+            java: 17
+            distribution: oracle
+          - os: macos-latest
+            java: 17
+            distribution: oracle
+          - os: windows-latest
+            java: 17
+            distribution: oracle
+          - os: ubuntu-latest
+            java: 25
+            distribution: oracle
+          - os: macos-latest
+            java: 25
+            distribution: oracle
+          - os: windows-latest
+            java: 25
+            distribution: oracle
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout
@@ -21,6 +110,7 @@ jobs:
       with:
         distribution: "${{ matrix.distribution }}"
         java-version: "${{ matrix.java }}"
+        check-latest: "true"
         cache: sbt
     - name: Setup sbt
       uses: sbt/setup-sbt@v1
