@@ -32,3 +32,18 @@ VULNERABLE (HTTP 200) https://ev-g3c-aaa-emudhra.we-have-a-problem.com/
 [error] stack trace is suppressed; run last Compile / run for the full output
 [error] (Compile / run) compromised CAs are in use, or we encountered a network error
 ```
+
+## Distrust compromised CA certs manually
+
+This repo also contains a script to distrust the compromised certs manually:
+
+```yaml
+    - name: Distrust compromised certs manually
+      shell: bash
+      run: |
+      if [ "$RUNNER_OS" = "Windows" ]; then
+        bash bin/distrust-emudhra.sh "$JAVA_HOME"
+      else
+        sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
+      fi
+```
