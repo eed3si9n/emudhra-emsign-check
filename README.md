@@ -47,3 +47,10 @@ This repo also contains a script to distrust the compromised certs manually:
         sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
       fi
 ```
+
+## License
+
+This software is distributed under BSD Zero Clause License (0BSD).
+
+To the extent possible under law, the author(s) have dedicated all copyright and
+related and neighboring rights to this software to the public domain worldwide.
