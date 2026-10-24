@@ -41,11 +41,11 @@ This repo also contains a script to distrust the compromised certs manually:
     - name: Distrust compromised certs manually
       shell: bash
       run: |
-      if [ "$RUNNER_OS" = "Windows" ]; then
-        bash bin/distrust-emudhra.sh "$JAVA_HOME"
-      else
-        sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
-      fi
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          bash bin/distrust-emudhra.sh "$JAVA_HOME"
+        else
+          sudo -E bash bin/distrust-emudhra.sh "$JAVA_HOME"
+        fi
 ```
 
 ## License
